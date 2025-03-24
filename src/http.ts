@@ -171,6 +171,7 @@ class Libp2pHttpClient {
    *   - method: The HTTP method (e.g., GET, POST). Defaults to "GET".
    *   - headers: A record of HTTP headers to include in the request.
    *   - body: The request body as a string (for methods like POST).
+   *   - timeout: The maximum time (in milliseconds) to wait for a response.
    * @returns A Promise that resolves to a Response object containing the server's response.
    * 
    * This method ensures that a connection is established before sending the request.
@@ -183,6 +184,7 @@ class Libp2pHttpClient {
       method?: string;
       headers?: Record<string, string>;
       body?: string;
+      timeout?: number; // Timeout in milliseconds
     } = {}
   ): Promise<Response> {
     // Ensure the connection is established before sending the request
@@ -223,8 +225,19 @@ class Libp2pHttpClient {
 
     // Send the request and return a Promise that resolves when a response is received
     return new Promise<Response>((resolve, reject) => {
+      // Set up a timeout if specified
+      const timeout = options.timeout || 5000; // Default timeout of 5 seconds
+      let timeoutId: NodeJS.Timeout | null = null;
+
+      if (timeout > 0) {
+        timeoutId = setTimeout(() => {
+          reject(new Error("Request timed out"));
+        }, timeout);
+      }
+
       // Register a callback to handle the raw response
       this.responseQueue.push((rawResponse: string) => {
+        if (timeoutId) clearTimeout(timeoutId); // Clear the timeout if the response is received
         try {
           // Parse the raw response into a Response object
           const response = this.parseHttpResponse(rawResponse);
