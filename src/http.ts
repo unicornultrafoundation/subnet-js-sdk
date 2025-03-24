@@ -1,11 +1,11 @@
-import { createLibp2p, Libp2p } from "libp2p";
+import { createLibp2p, type Libp2p } from "libp2p";
 import { webTransport } from "@libp2p/webtransport";
 import { noise } from "@chainsafe/libp2p-noise";
 import { yamux } from "@chainsafe/libp2p-yamux";
 import { pushable } from "it-pushable";
 import { pipe } from "it-pipe";
 import PQueue from "p-queue";
-import { Multiaddr, multiaddr } from "@multiformats/multiaddr";
+import { type Multiaddr, multiaddr } from "@multiformats/multiaddr";
 
 /**
  * A client for managing libp2p connections and performing HTTP-like requests.
